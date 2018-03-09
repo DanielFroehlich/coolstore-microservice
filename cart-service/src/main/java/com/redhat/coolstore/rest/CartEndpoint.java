@@ -18,7 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.redhat.coolstore.model.kie.Product;
@@ -49,6 +52,23 @@ public class CartEndpoint implements Serializable {
         return shoppingCartService.getShoppingCart(cartId);
     }
 
+    
+ 
+    
+	public void callWhiskFunction() {
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+	
+			HttpEntity<String> entity = new HttpEntity<String>("{\"article:\":\"Socks\"}", headers);
+			restTemplate.postForEntity("http://notifier-notifier.1d35.starter-us-east-1.openshiftapps.com/article", entity, String.class);		
+		} catch (Exception unexpectedShitHappend) {
+			LOG.error("callWhiskFunction failed", unexpectedShitHappend);
+		}
+	}
+    
     @POST
     @Path("/{cartId}/{itemId}/{quantity}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -70,6 +90,8 @@ public class CartEndpoint implements Serializable {
         sci.setPrice(product.getPrice());
         cart.addShoppingCartItem(sci);
 
+        callWhiskFunction();     
+        
         try {
             shoppingCartService.priceShoppingCart(cart);
             cart.setShoppingCartItemList(dedupeCartItems(cart.getShoppingCartItemList()));
