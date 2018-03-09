@@ -58,11 +58,11 @@ public class CartEndpoint implements Serializable {
 	public void callWhiskFunction() {
 		try {
 			RestTemplate restTemplate = new RestTemplate();
-			
+			LOG.info("Assimilating OpenWhisk....");
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
 	
-			HttpEntity<String> entity = new HttpEntity<String>("{\"article:\":\"Socks\"}", headers);
+			HttpEntity<String> entity = new HttpEntity<String>("{\"article\":\"Red Fedora\"}", headers);
 			restTemplate.postForEntity("http://notifier-notifier.1d35.starter-us-east-1.openshiftapps.com/article", entity, String.class);		
 		} catch (Exception unexpectedShitHappend) {
 			LOG.error("callWhiskFunction failed", unexpectedShitHappend);
